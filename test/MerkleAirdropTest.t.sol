@@ -16,6 +16,7 @@ contract MerkleAirdropTest is Test {
     bytes32[] private proof;
     uint256 public constant TOKEN_TO_MINT = 100 ether;
     address user = makeAddr("user");
+    address fakeUser = makeAddr("fakeUser");
 
     function setUp() public {
         token = new ERC20Mock();
@@ -32,6 +33,22 @@ contract MerkleAirdropTest is Test {
         uint256 intialUserBalance = token.balanceOf(user);
         console.log("initial balance of user", intialUserBalance);
         vm.prank(user);
+
+        merkleAirdrop.claimAirdrop(user, amountToMint, proof);
+
+        // user final token balance
+        uint256 finalUserBalance = token.balanceOf(user);
+        console.log("final balance of user", finalUserBalance);
+        assert(finalUserBalance > 0);
+    }
+
+    function testCannotClaimAirdropWithFalseUser() public {
+        uint256 amountToMint = 5000000000000000000;
+        proof.push(proofUser);
+        // user initial token balance
+        uint256 intialUserBalance = token.balanceOf(user);
+        console.log("initial balance of user", intialUserBalance);
+        vm.prank(fakeUser);
 
         merkleAirdrop.claimAirdrop(user, amountToMint, proof);
 
